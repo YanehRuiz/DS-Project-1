@@ -27,6 +27,9 @@ public class Book {
 	        this.genre = genre;
 	        this.lastCheckOut = lastCheckOut;
 	        this.checkedOut = checkedOut;
+	        
+	        toString();
+	        calculateFees();
 	    
 	    }
 
@@ -82,7 +85,7 @@ public class Book {
 		/*
 		 * fee (if applicable) = base fee + 1.5 per additional day
 		 */
-	System.out.println(lastCheckOut);
+	
 				
 			 long daysBetweenthem = ChronoUnit.DAYS.between(lastCheckOut,currentDate);
 			
@@ -93,7 +96,7 @@ public class Book {
 			 }
 		
 		
-		return 10.0f;
+		return 0.0f;
 	}
 
 	
