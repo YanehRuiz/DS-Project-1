@@ -100,7 +100,7 @@ public class LibraryCatalog {
 		 * */
 
 
-			//WIP
+		//WIP
 		BufferedReader reader = new BufferedReader(new FileReader("data/user.csv"));
 		String line;
 		while ((line = reader.readLine()) != null) {
@@ -204,11 +204,16 @@ public class LibraryCatalog {
 		}
 	}	
 
-
+	/*
+	 *  Checks if the book has not been checked out. If it
+	 *   hasn't then it is then checked out, changes the 
+	 *   day to "today's" and returns true. If it's not then 
+	 *   it returns false.
+	 */
 
 	public boolean checkOutBook(int id) {
-		
-		
+
+
 		for (int i = 0; i < bookList.size(); i++) {
 			if (bookList.get(i).getId() == id) {
 				if (!bookList.get(i).isCheckedOut()) {
@@ -221,27 +226,54 @@ public class LibraryCatalog {
 		return false;
 	}
 
-
+	/*
+	 * Similar to checkedout, it checks if it's been 
+	 * checkedout before. If it has, then you can return
+	 * said book, CO is set to false and it returns true
+	 * when the returning process has been completed. If
+	 * it wasn't completed then it returns false.
+	 */
 
 	public boolean returnBook(int id) {
 		for (int i = 0; i < bookList.size(); i++) {
 			if (bookList.get(i).getId() == id) {
 				if (bookList.get(i).isCheckedOut()) {
-				//	bookList.get(i).setLastCheckOut(LocalDate.of(2023, 9, 15));
 					bookList.get(i).setCheckedOut(false);
 					return true;
 				}
 			}
 		}
 		return false;
-	
+
 	}
 
+
+	/*
+	 * This methods verifies if the book with the
+	 * same id as the parameter id is checked out.
+	 * If its not, it returns true, as its available
+	 * for checkout. Otherwise it returns false.
+	 */
+
 	public boolean getBookAvailability(int id) {
-		return true;
+		if (!bookList.get(id).isCheckedOut()) {
+			return true;
+		}
+
+		return false;
 	}
+
+
+
 	public int bookCount(String title) {
-		return 1000;
+		int count = 0;
+
+		for (int i = 0; i < bookList.size(); i++) {
+			if (bookList.get(i).getTitle().equals(title)) {
+				count++;
+			}
+		}
+		return count;
 	}
 	public void generateReport() throws IOException {
 

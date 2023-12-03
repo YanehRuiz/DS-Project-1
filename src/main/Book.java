@@ -64,7 +64,7 @@ public class Book {
 		this.lastCheckOut=lastCheckOut;
 	}
 	public boolean isCheckedOut() {
-		return false;
+		return checkedOut;
 	}
 	public void setCheckedOut(boolean checkedOut) {
 		this.checkedOut=checkedOut;
