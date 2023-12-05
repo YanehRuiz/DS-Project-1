@@ -22,9 +22,10 @@ public class LibraryCatalog {
 	public List<User> userList;
 	public List<Book> checkedOutList;
 	public List<Book> checkedOutListIDs;
+	public List<Book> bookSearch;
+	public List<User> UserSearch;
 
 
-	//jean.montes@upr.edu
 
 
 	public LibraryCatalog() throws IOException {
@@ -67,7 +68,7 @@ public class LibraryCatalog {
 				boolean checkedOut = Boolean.parseBoolean(values[5]);
 
 
-				Book book = new Book(id, genre, genre, genre, lastCheckOut, checkedOut);
+				Book book = new Book(id, title, author, genre, lastCheckOut, checkedOut);
 				book.setId(id);
 				book.setTitle(title);
 				book.setAuthor(author);
@@ -108,28 +109,19 @@ public class LibraryCatalog {
 			if(!values[0].equals("ID")) {
 				int id = Integer.parseInt(values[0]);
 				String fullName = values[1];    
-				List<Book> checkedOutList = new ArrayList<>();
-				String[] IDs = values[2].split(" ");
-
-
-
-
-
-
-
-				//line.split(//s)
-				//I need to split that "array" value given. So it's a split within a split.
-				//Se compara el id con el id del csv para obtener el libro y hacer la lista. 
-				//Vacio si no tiene ningun id. 
-
-				//		                for (int i = 2; i < values.length; i++) {
-				//		                	//Book book = new Book(values[i]);
-				//		                	checkedOutList.add(values[i]);
-
-
-
+				this.checkedOutList = new ArrayList<>(100);
+				String[] BookIDs = values[2].split(" ");
+				if(!values[2].isBlank()) {
+					for (int i = 0; i < BookIDs.length; i++) {
+			//			checkedOutList.add(BookIDs[i]);
+					}
+				}
 
 				User user = new User(id, fullName, checkedOutList);
+				user.setId(id);
+				user.setName(fullName);
+				user.setCheckedOutList(checkedOutList);			
+
 				userList.add(user);
 			}
 		}
@@ -360,12 +352,31 @@ public class LibraryCatalog {
 	 * You are not required to implement these, but they can be useful for
 	 * other parts of the project.
 	 */
+	
+	
+	
+	
+	
+	
 	public List<Book> searchForBook(FilterFunction<Book> func) {
-		return null;
+		this.bookSearch = new ArrayList<>(100); 
+		for (Book book : bookList) {
+			if (func.filter(book)) {
+				bookSearch.add(book);
+			}
+		}
+		return bookSearch;
 	}
 
+
 	public List<User> searchForUsers(FilterFunction<User> func) {
-		return null;
+		this.UserSearch = new ArrayList<>(100); 
+		for (User user : userList) {
+			if (func.filter(user)) {
+				UserSearch.add(user);
+			}
+		}
+		return UserSearch;
 	}
 
 }
