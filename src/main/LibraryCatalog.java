@@ -23,7 +23,7 @@ public class LibraryCatalog {
 	public List<Book> checkedOutList;
 	public List<Book> checkedOutListIDs;
 	public List<Book> bookSearch;
-	public List<User> UserSearch;
+	public List<User> userSearch;
 	public List<Integer> BooksIDs;
 	public float fees;
 
@@ -36,7 +36,7 @@ public class LibraryCatalog {
 		getBooksFromFiles();
 
 		this.userList = new ArrayList<>();
-		//getUsersFromFiles();
+		getUsersFromFiles();
 			
 		generateReport();
 	}
@@ -104,25 +104,30 @@ public class LibraryCatalog {
 		//WIP
 		BufferedReader reader = new BufferedReader(new FileReader("data/user.csv"));
 		String line;
-		List<Integer> BooksIDs = new ArrayList<>(25);
+		this.BooksIDs = new ArrayList<>(100);
+		this.checkedOutList = new ArrayList<>(100);
+		
 		while ((line = reader.readLine()) != null) {
 			String[] values = line.split(",");
+		
 			if(!values[0].equals("ID")) {
 				int id = Integer.parseInt(values[0]);
 				String fullName = values[1];    
-				this.checkedOutList = new ArrayList<>(100);
-				String[] BookIDsList = values[2].split(" ");
-				for (int i = 0; i < BookIDsList.length; i++) {
-					BooksIDs.add(Integer.parseInt(BookIDsList[i]));
-					if(!values[2].isBlank()) {
-						for (int j = 0; j < BooksIDs.size(); j++) {
-							if(bookList.get(j).getId()==(BooksIDs.get(j))){
-								checkedOutList.add(bookList.get(id));
-							}
-						}
-					}
-				}
 
+			     if (values.length > 2 && !values[2].isBlank()) {
+		                String bookIDsString = values[2].replace("{", "").replace("}", "");
+		                String[] bookIDsList = bookIDsString.split(" ");
+
+		                for (String bookID : bookIDsList) {
+		                    int bookIDtoInt = Integer.parseInt(bookID);
+		                    for (Book booksChecked : bookList) {
+		                        if (booksChecked.getId() == bookIDtoInt) {
+		                            checkedOutList.add(booksChecked);
+		                            break;
+		                        }
+		                    }
+		                }
+		            }
 
 				User user = new User(id, fullName, checkedOutList);
 				user.setId(id);
@@ -430,13 +435,13 @@ public class LibraryCatalog {
 
 
 	public List<User> searchForUsers(FilterFunction<User> func) {
-		this.UserSearch = new ArrayList<>(100); 
+		this.userSearch = new ArrayList<>(100); 
 		for (User user : userList) {
 			if (func.filter(user)) {
-				UserSearch.add(user);
+				userSearch.add(user);
 			}
 		}
-		return UserSearch;
+		return userSearch;
 	}
 
 }
