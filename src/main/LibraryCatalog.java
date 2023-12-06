@@ -24,22 +24,21 @@ public class LibraryCatalog {
 	public List<Book> checkedOutListIDs;
 	public List<Book> bookSearch;
 	public List<User> UserSearch;
+	public List<Integer> BooksIDs;
+	public float fees;
 
 
 
 
 	public LibraryCatalog() throws IOException {
-		//	generateReport();
-
-
-
-
+		
 		this.bookList = new ArrayList<>();
 		getBooksFromFiles();
 
 		this.userList = new ArrayList<>();
 		//getUsersFromFiles();
-
+			
+		generateReport();
 	}
 	private List<Book> getBooksFromFiles() throws IOException {
 		this.bookList= new ArrayList<>(100);
@@ -85,6 +84,7 @@ public class LibraryCatalog {
 
 	}
 
+
 	private List<User> getUsersFromFiles() throws IOException {
 		this.userList= new ArrayList<>(100);
 
@@ -104,18 +104,25 @@ public class LibraryCatalog {
 		//WIP
 		BufferedReader reader = new BufferedReader(new FileReader("data/user.csv"));
 		String line;
+		List<Integer> BooksIDs = new ArrayList<>(25);
 		while ((line = reader.readLine()) != null) {
 			String[] values = line.split(",");
 			if(!values[0].equals("ID")) {
 				int id = Integer.parseInt(values[0]);
 				String fullName = values[1];    
 				this.checkedOutList = new ArrayList<>(100);
-				String[] BookIDs = values[2].split(" ");
-				if(!values[2].isBlank()) {
-					for (int i = 0; i < BookIDs.length; i++) {
-			//			checkedOutList.add(BookIDs[i]);
+				String[] BookIDsList = values[2].split(" ");
+				for (int i = 0; i < BookIDsList.length; i++) {
+					BooksIDs.add(Integer.parseInt(BookIDsList[i]));
+					if(!values[2].isBlank()) {
+						for (int j = 0; j < BooksIDs.size(); j++) {
+							if(bookList.get(j).getId()==(BooksIDs.get(j))){
+								checkedOutList.add(bookList.get(id));
+							}
+						}
 					}
 				}
+
 
 				User user = new User(id, fullName, checkedOutList);
 				user.setId(id);
@@ -162,7 +169,7 @@ public class LibraryCatalog {
 		boolean checkedOut = false;
 
 
-		Book book = new Book(id, genre, genre, genre, lastCheckOut, checkedOut);
+		Book book = new Book(id, title, author, genre, lastCheckOut, checkedOut);
 		book.setId(bookList.size()+1);
 		book.setTitle(title);
 		book.setAuthor(author);
@@ -255,7 +262,12 @@ public class LibraryCatalog {
 		return false;
 	}
 
-
+	/*
+	 * This methods verifies if a book with the
+	 * title parameter has the same title as a
+	 * book that is in the list. It then counts
+	 * how many occurences that title has.
+	 */
 
 	public int bookCount(String title) {
 		int count = 0;
@@ -267,7 +279,43 @@ public class LibraryCatalog {
 		}
 		return count;
 	}
+	
+	/*
+	 * This method is an extra that works just like the
+	 * title method. It is here to help with the report
+	 * generating method.
+	 */
+	
+	public int bookCountGenre(String genre) {
+		int countGenre = 0;
+
+		for (int i = 0; i < bookList.size(); i++) {
+			if (bookList.get(i).getGenre().equals(genre)) {
+				countGenre++;
+			}
+		}
+		return countGenre;
+	}
+	
+	
+	
+	
+	
+	
 	public void generateReport() throws IOException {
+		
+	
+		
+		// Count the number of books in each genre
+	    int adventureCount = bookCountGenre("Adventure");
+	    int fictionCount = bookCountGenre("Fiction");
+	    int classicsCount = bookCountGenre("Classics");
+	    int mysteryCount = bookCountGenre("Mystery");
+	    int scienceFictionCount = bookCountGenre("Science Fiction");
+		
+		
+	    int totalBooks = adventureCount + fictionCount + classicsCount + mysteryCount + scienceFictionCount;
+		
 
 		String output = "\t\t\t\tREPORT\n\n";
 		output += "\t\tSUMMARY OF BOOKS\n";
@@ -283,13 +331,13 @@ public class LibraryCatalog {
 		 * How you do the count is up to you. You can make a method, use the searchForBooks()
 		 * function or just do the count right here.
 		 */
-		output += "Adventure\t\t\t\t\t" + (/*Place here the amount of adventure books*/) + "\n";
-		output += "Fiction\t\t\t\t\t\t" + (/*Place here the amount of fiction books*/) + "\n";
-		output += "Classics\t\t\t\t\t" + (/*Place here the amount of classics books*/) + "\n";
-		output += "Mystery\t\t\t\t\t\t" + (/*Place here the amount of mystery books*/) + "\n";
-		output += "Science Fiction\t\t\t\t\t" + (/*Place here the amount of science fiction books*/) + "\n";
+		output += "Adventure\t\t\t\t\t" + (adventureCount) + "\n";
+		output += "Fiction\t\t\t\t\t\t" + (fictionCount) + "\n";
+		output += "Classics\t\t\t\t\t" + (classicsCount) + "\n";
+		output += "Mystery\t\t\t\t\t\t" + (mysteryCount) + "\n";
+		output += "Science Fiction\t\t\t\t\t" + (scienceFictionCount) + "\n";
 		output += "====================================================\n";
-		output += "\t\t\tTOTAL AMOUNT OF BOOKS\t" + (/*Place here the total number of books*/) + "\n\n";
+		output += "\t\t\tTOTAL AMOUNT OF BOOKS\t" + (totalBooks) + "\n\n";
 
 		/*
 		 * This part prints the books that are currently checked out
@@ -304,10 +352,17 @@ public class LibraryCatalog {
 		 * 
 		 * PLACE CODE HERE
 		 */
+		
+	    for (Book booksCO : bookList) {
+	        if (booksCO.isCheckedOut()) {
+	            output += booksCO.toString() + "\n";
+	        }
+	    }
 
+	    int checkedOutCount = searchForBook(Book::isCheckedOut).size();
 
 		output += "====================================================\n";
-		output += "\t\t\tTOTAL AMOUNT OF BOOKS\t" (/*Place here the total number of books that are checked out*/) + "\n\n";
+		output += "\t\t\tTOTAL AMOUNT OF BOOKS\t" + (checkedOutCount) + "\n\n";
 
 
 		/*
@@ -329,10 +384,12 @@ public class LibraryCatalog {
 		 * 
 		 * PLACE CODE HERE!
 		 */
+		
+	
 
 
 		output += "====================================================\n";
-		output += "\t\t\t\tTOTAL DUE\t$" + (/*Place here the total amount of money owed to the library.*/) + "\n\n\n";
+		output += "\t\t\t\tTOTAL DUE\t$" + (fees) + "\n\n\n";
 		output += "\n\n";
 		System.out.println(output);// You can use this for testing to see if the report is as expected.
 
@@ -343,7 +400,10 @@ public class LibraryCatalog {
 		 * 
 		 * PLACE CODE HERE!!
 		 */
-
+		
+		BufferedWriter reportwriter = new BufferedWriter(new FileWriter("report.txt"));
+		reportwriter.write(output);
+		reportwriter.close();
 	}
 
 	/*
@@ -352,12 +412,12 @@ public class LibraryCatalog {
 	 * You are not required to implement these, but they can be useful for
 	 * other parts of the project.
 	 */
-	
-	
-	
-	
-	
-	
+
+
+
+
+
+
 	public List<Book> searchForBook(FilterFunction<Book> func) {
 		this.bookSearch = new ArrayList<>(100); 
 		for (Book book : bookList) {
