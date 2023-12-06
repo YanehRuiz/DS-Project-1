@@ -31,13 +31,13 @@ public class LibraryCatalog {
 
 
 	public LibraryCatalog() throws IOException {
-		
+
 		this.bookList = new ArrayList<>();
 		getBooksFromFiles();
 
 		this.userList = new ArrayList<>();
 		getUsersFromFiles();
-			
+
 		generateReport();
 	}
 	private List<Book> getBooksFromFiles() throws IOException {
@@ -101,33 +101,33 @@ public class LibraryCatalog {
 		 * */
 
 
-		//WIP
+		
 		BufferedReader reader = new BufferedReader(new FileReader("data/user.csv"));
 		String line;
 		this.BooksIDs = new ArrayList<>(100);
 		this.checkedOutList = new ArrayList<>(100);
-		
+
 		while ((line = reader.readLine()) != null) {
 			String[] values = line.split(",");
-		
+
 			if(!values[0].equals("ID")) {
 				int id = Integer.parseInt(values[0]);
 				String fullName = values[1];    
+				this.checkedOutList = new ArrayList<Book>();
+				if (values.length > 2 && !values[2].isBlank()) {
+					String bookIDsString = values[2].replace("{", "").replace("}", "");
+					String[] bookIDsList = bookIDsString.split(" ");
 
-			     if (values.length > 2 && !values[2].isBlank()) {
-		                String bookIDsString = values[2].replace("{", "").replace("}", "");
-		                String[] bookIDsList = bookIDsString.split(" ");
-
-		                for (String bookID : bookIDsList) {
-		                    int bookIDtoInt = Integer.parseInt(bookID);
-		                    for (Book booksChecked : bookList) {
-		                        if (booksChecked.getId() == bookIDtoInt) {
-		                            checkedOutList.add(booksChecked);
-		                            break;
-		                        }
-		                    }
-		                }
-		            }
+					for (String bookID : bookIDsList) {
+						int bookIDtoInt = Integer.parseInt(bookID);
+						for (Book booksChecked : bookList) {
+							if (booksChecked.getId() == bookIDtoInt) {
+								checkedOutList.add(booksChecked);
+								break;
+							}
+						}
+					}
+				}
 
 				User user = new User(id, fullName, checkedOutList);
 				user.setId(id);
@@ -284,13 +284,13 @@ public class LibraryCatalog {
 		}
 		return count;
 	}
-	
+
 	/*
 	 * This method is an extra that works just like the
 	 * title method. It is here to help with the report
 	 * generating method.
 	 */
-	
+
 	public int bookCountGenre(String genre) {
 		int countGenre = 0;
 
@@ -301,26 +301,26 @@ public class LibraryCatalog {
 		}
 		return countGenre;
 	}
-	
-	
-	
-	
-	
-	
+
+
+
+
+
+
 	public void generateReport() throws IOException {
-		
-	
-		
+
+
+
 		// Count the number of books in each genre
-	    int adventureCount = bookCountGenre("Adventure");
-	    int fictionCount = bookCountGenre("Fiction");
-	    int classicsCount = bookCountGenre("Classics");
-	    int mysteryCount = bookCountGenre("Mystery");
-	    int scienceFictionCount = bookCountGenre("Science Fiction");
-		
-		
-	    int totalBooks = adventureCount + fictionCount + classicsCount + mysteryCount + scienceFictionCount;
-		
+		int adventureCount = bookCountGenre("Adventure");
+		int fictionCount = bookCountGenre("Fiction");
+		int classicsCount = bookCountGenre("Classics");
+		int mysteryCount = bookCountGenre("Mystery");
+		int scienceFictionCount = bookCountGenre("Science Fiction");
+
+
+		int totalBooks = adventureCount + fictionCount + classicsCount + mysteryCount + scienceFictionCount;
+
 
 		String output = "\t\t\t\tREPORT\n\n";
 		output += "\t\tSUMMARY OF BOOKS\n";
@@ -357,14 +357,14 @@ public class LibraryCatalog {
 		 * 
 		 * PLACE CODE HERE
 		 */
-		
-	    for (Book booksCO : bookList) {
-	        if (booksCO.isCheckedOut()) {
-	            output += booksCO.toString() + "\n";
-	        }
-	    }
 
-	    int checkedOutCount = searchForBook(Book::isCheckedOut).size();
+		for (Book booksCO : bookList) {
+			if (booksCO.isCheckedOut()) {
+				output += booksCO.toString() + "\n";
+			}
+		}
+
+		int checkedOutCount = searchForBook(Book::isCheckedOut).size();
 
 		output += "====================================================\n";
 		output += "\t\t\tTOTAL AMOUNT OF BOOKS\t" + (checkedOutCount) + "\n\n";
@@ -389,12 +389,36 @@ public class LibraryCatalog {
 		 * 
 		 * PLACE CODE HERE!
 		 */
-		
-	
+		float totalFees= 0;
+		float totalFeesOwed = 0;
+
+		/////////////////VOLVER/////////////////
+		for (int i = 0; i < userList.size(); i++) {
+		    User usersNfees = userList.get(i);
+		    totalFees = 0.0f;
+		    for (int j = 0; j < usersNfees.getCheckedOutList().size(); j++) {
+		        Book book = usersNfees.getCheckedOutList().get(j);
+		        totalFees += book.calculateFees();
+		    }
+		    if (totalFees > 0) {
+		        output += usersNfees.getName() + "\t\t\t\t\t$" + String.format("%.2f", totalFees) + "\n";
+		    }
+		}
+
+
+		for (User userFees : userList) {
+			for (Book book : userFees.getCheckedOutList()) {
+				totalFeesOwed += book.calculateFees();
+			}
+		}
+
+
+
+
 
 
 		output += "====================================================\n";
-		output += "\t\t\t\tTOTAL DUE\t$" + (fees) + "\n\n\n";
+		output += "\t\t\t\tTOTAL DUE\t$" + (totalFeesOwed) + "\n\n\n";
 		output += "\n\n";
 		System.out.println(output);// You can use this for testing to see if the report is as expected.
 
@@ -405,7 +429,7 @@ public class LibraryCatalog {
 		 * 
 		 * PLACE CODE HERE!!
 		 */
-		
+
 		BufferedWriter reportwriter = new BufferedWriter(new FileWriter("report.txt"));
 		reportwriter.write(output);
 		reportwriter.close();
