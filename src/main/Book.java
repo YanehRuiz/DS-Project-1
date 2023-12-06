@@ -14,7 +14,7 @@ public class Book {
 	    public String title;
 	    public String author;
 	    public String genre;
-	    private LocalDate lastCheckOut;
+	    private LocalDate lastCheckOut = getLastCheckOut();
 	    public LocalDate currentDate = LocalDate.of(2023, 9, 15);
 	    public LocalDate latefeeDate = LocalDate.of(2023, 8, 16);
 	    public boolean checkedOut;
@@ -82,21 +82,25 @@ public class Book {
 		return (title+ " BY "+ author).toUpperCase();
 	}
 	public float calculateFees() {
+		 float calculatedFee;
 		/*
 		 * fee (if applicable) = base fee + 1.5 per additional day
+		 * 
+		 * This methods checks the day between the last checkout and 
+		 * the current date. If the date is past 31 days, then a late
+		 * fee is made. This calculates said fee. If its early/on time,
+		 * then no fee is charged past the base one.
 		 */
 	
 				
 			 long daysBetweenthem = ChronoUnit.DAYS.between(lastCheckOut,currentDate);
-			
-			 if(daysBetweenthem>31) {
-				
-				double  fee = (daysBetweenthem-31)*1.5;
-				return (float) fee;
-			 }
+			 long daysToCharge = Math.max(daysBetweenthem-31, 0);
+			 
+			calculatedFee = 10f + (1.5f * daysToCharge);
+			 
 		
 		
-		return 0.0f;
+		return calculatedFee;
 	}
 
 	
