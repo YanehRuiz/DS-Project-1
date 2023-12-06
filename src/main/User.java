@@ -9,6 +9,11 @@ import data_structures.ArrayList;
 import interfaces.List;
 
 
+/*
+ * User Class where the id, name and checkedoutlist constructor is passed.
+ */
+
+
 public class User {
     public int id;
     public String name;
